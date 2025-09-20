@@ -1,0 +1,25 @@
+services:
+  rails_app:
+    image: ${RAILS_IMAGE_NAME:-rails_app}:${RAILS_IMAGE_VERSION:-latest}
+    container_name: ${COMPOSE_PROJECT_NAME}_rails_app
+    restart: always
+    depends_on:
+      - curator_postgres
+      - curator_redis
+      - curator_mongo
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASS}@${COMPOSE_PROJECT_NAME}_cdcs_postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASS}@${COMPOSE_PROJECT_NAME}_cdcs_redis:${REDIS_PORT:-6379}/0
+      - MONGO_URL=mongodb://${MONGO_USER}:${MONGO_PASS}@${COMPOSE_PROJECT_NAME}_cdcs_mongo:${MONGO_PORT:-27017}/${MONGO_DB}
+      - RAILS_ENV=production
+      - RAILS_LOG_TO_STDOUT=true
+      - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - RAILS_HOST=${RAILS_HOST:-rails.local}
+      - RAILS_FORCE_SSL=${RAILS_FORCE_SSL:-false}
+      - RAILS_MAX_THREADS=${RAILS_MAX_THREADS:-5}
+      - RAILS_MIN_THREADS=${RAILS_MIN_THREADS:-5}
+      - WEB_CONCURRENCY=${RAILS_WEB_CONCURRENCY:-0}
+      - PORT=${RAILS_PORT:-3000}
+    ports:
+      - "${RAILS_PORT_EXPOSE:-3000}:${RAILS_PORT:-3000}"

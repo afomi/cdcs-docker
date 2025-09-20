@@ -1,0 +1,8 @@
+production:
+  clients:
+    default:
+      uri: <%= ENV.fetch("MONGO_URL") { "mongodb://localhost:27017/rails_app" } %>
+      options:
+        server_selection_timeout: 5
+  options:
+    use_activesupport_time_zone: true

@@ -18,3 +18,10 @@ services:
         - ELIXIR_VERSION=${ELIXIR_VERSION:-1.15.7}
         - OTP_VERSION=${OTP_VERSION:-26.2}
         - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20240318}
+  rails_app:
+    image: ${RAILS_IMAGE_NAME:-rails_app}:${RAILS_IMAGE_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: build/rails/Dockerfile
+      args:
+        - RUBY_VERSION=${RUBY_VERSION:-3.3.0}

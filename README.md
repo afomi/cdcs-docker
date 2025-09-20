@@ -113,6 +113,16 @@ and filled.
 | PHOENIX_POOL_SIZE     | Size of the Phoenix Ecto connection pool (default: 10)                                                                                                                                                     |
 | PHOENIX_DB_SSL        | Whether Phoenix uses SSL for the Postgres connection (`true`/`false`, default: false)                                                                                                                     |
 | PHOENIX_SECRET_KEY_BASE | Secret key base for the Phoenix endpoint (generate with `mix phx.gen.secret`)                                                                                                                            |
+| RAILS_IMAGE_NAME     | Name of the Rails image to deploy (default: rails_app)                                                                                                                                                      |
+| RAILS_IMAGE_VERSION  | Tag of the Rails image to deploy (default: latest)                                                                                                                                                          |
+| RAILS_PORT           | Internal port exposed by Puma inside the container (default: 3000)                                                                                                                                          |
+| RAILS_PORT_EXPOSE    | Host port mapped to the Rails service (default: 3000)                                                                                                                                                       |
+| RAILS_HOST           | Hostname Rails advertises for URL generation (default: rails.local)                                                                                                                                         |
+| RAILS_FORCE_SSL      | Toggle `force_ssl` in production (`true`/`false`, default: false)                                                                                                                                            |
+| RAILS_MAX_THREADS    | Maximum Puma thread count (default: 5)                                                                                                                                                                      |
+| RAILS_MIN_THREADS    | Minimum Puma thread count (default: 5)                                                                                                                                                                      |
+| RAILS_WEB_CONCURRENCY | Number of Puma workers to fork (default: 0)                                                                                                                                                                |
+| RAILS_MASTER_KEY     | Rails credentials key (set when using encrypted credentials)                                                                                                                                                |
 | REDIS_PORT            | Redis Port (default: 6379)                                                                                                                                                                                |
 | REDIS_PASS            | Password for Redis                                                                                                                                                                                        |
 | DJANGO_SECRET_KEY     | [Secret Key](https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/#secret-key) for Django (should be a "large random value")                                                                  |
@@ -544,10 +554,10 @@ More information on MongoDB RAM usage can be found in the
 ## Additional components
 
 Additional components can be added to the CDCS stack by providing `docker-compose.yml` files for those.
-Update the `COMPOSE_FILE` variable in the `.env` file to do so. The sample deployment `.env` ships with the MongoDB and Phoenix overlays enabled:
+Update the `COMPOSE_FILE` variable in the `.env` file to do so. The sample deployment `.env` ships with the MongoDB, Phoenix, and Rails overlays enabled:
 
 ```
-COMPOSE_FILE=docker-compose.yml:mongo/docker-compose.yml:phoenix/docker-compose.yml
+COMPOSE_FILE=docker-compose.yml:mongo/docker-compose.yml:phoenix/docker-compose.yml:rails/docker-compose.yml
 ```
 
 More information can be found on this option in the
@@ -574,6 +584,20 @@ The repository provides a Phoenix 1.8 application that shares the existing Postg
 | `PHOENIX_DB_SSL`       | Set to `true` to enable SSL when connecting to Postgres.                                 |
 
 The service is built from `build/phoenix/Dockerfile` and the application source in `services/phoenix_app`. Build the image with `docker-compose -f build/docker-compose.yml build phoenix_app` before deploying.
+
+### Rails 8 service
+
+A minimal Rails 8 API application is available under `services/rails_app` and relies on Postgres, Redis, and MongoDB from the core stack. Add `rails/docker-compose.yml` to the `COMPOSE_FILE` list (already present in the sample `.env`) and provide the Rails-specific variables in `deploy/.env`:
+
+| Variable | Purpose |
+|----------|---------|
+| `RAILS_MASTER_KEY` | Optional master key when using Rails encrypted credentials. Leave unset if not using credentials. |
+| `RAILS_HOST` | Hostname advertised in generated URLs. |
+| `RAILS_PORT` / `RAILS_PORT_EXPOSE` | Container/host port mapping for Puma. |
+| `RAILS_FORCE_SSL` | Enable to force HTTPS redirects. |
+| `RAILS_MAX_THREADS` / `RAILS_MIN_THREADS` / `RAILS_WEB_CONCURRENCY` | Tune Puma threading and worker counts. |
+
+Build the image with `docker-compose -f build/docker-compose.yml build rails_app`. The container entrypoint runs `rails db:prepare` against the shared Postgres instance on boot; ensure the database credentials in `deploy/.env` allow schema management.
 
 ### :construction: Celery (WIP)
 
