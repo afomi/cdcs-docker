@@ -105,6 +105,14 @@ and filled.
 | POSTGRES_USER         | User for Postgres                                                                                                                                                                                         |
 | POSTGRES_PASS         | User password for Postgres                                                                                                                                                                                |
 | POSTGRES_DB           | Name of the Postgres database (e.g. cdcs)                                                                                                                                                                 |
+| PHOENIX_IMAGE_NAME    | Name of the Phoenix image to deploy (default: phoenix_app)                                                                                                                                                 |
+| PHOENIX_IMAGE_VERSION | Tag of the Phoenix image to deploy (default: latest)                                                                                                                                                       |
+| PHOENIX_PORT          | Internal port used by the Phoenix endpoint (default: 4000)                                                                                                                                                |
+| PHOENIX_PORT_EXPOSE   | Host port mapped to the Phoenix endpoint (default: 4000)                                                                                                                                                  |
+| PHOENIX_HOST          | Hostname advertised by Phoenix (default: phoenix.local)                                                                                                                                                   |
+| PHOENIX_POOL_SIZE     | Size of the Phoenix Ecto connection pool (default: 10)                                                                                                                                                     |
+| PHOENIX_DB_SSL        | Whether Phoenix uses SSL for the Postgres connection (`true`/`false`, default: false)                                                                                                                     |
+| PHOENIX_SECRET_KEY_BASE | Secret key base for the Phoenix endpoint (generate with `mix phx.gen.secret`)                                                                                                                            |
 | REDIS_PORT            | Redis Port (default: 6379)                                                                                                                                                                                |
 | REDIS_PASS            | Password for Redis                                                                                                                                                                                        |
 | DJANGO_SECRET_KEY     | [Secret Key](https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/#secret-key) for Django (should be a "large random value")                                                                  |
@@ -536,7 +544,13 @@ More information on MongoDB RAM usage can be found in the
 ## Additional components
 
 Additional components can be added to the CDCS stack by providing `docker-compose.yml` files for those.
-Update the `COMPOSE_FILE` variable in the `.env` file to do so. More information can be found in on this option in the
+Update the `COMPOSE_FILE` variable in the `.env` file to do so. The sample deployment `.env` ships with the MongoDB and Phoenix overlays enabled:
+
+```
+COMPOSE_FILE=docker-compose.yml:mongo/docker-compose.yml:phoenix/docker-compose.yml
+```
+
+More information can be found on this option in the
 [documentation](https://docs.docker.com/compose/reference/envvars/#compose_file).
 
 ### MongoDB
@@ -544,12 +558,22 @@ Update the `COMPOSE_FILE` variable in the `.env` file to do so. More information
 In preparation for the release of CDCS 3.x, MongoDB becomes an optional component and 
 will not be part of the default stack. It will need to be added for any CDCS 2.x deployment.
 
-To add MongoDB to the CDCS stack, you can do the following:
+To add MongoDB to the CDCS stack, append `:mongo/docker-compose.yml` to the `COMPOSE_FILE` value as shown above if it is not already present.
 
-Update the `.env` file to deploy MongoDB:
-```
-COMPOSE_FILE=docker-compose.yml:mongo/docker-compose.yml
-```
+### Phoenix 1.8 service
+
+The repository provides a Phoenix 1.8 application that shares the existing Postgres database. Include
+`phoenix/docker-compose.yml` in `COMPOSE_FILE` to start the service alongside CDCS. Configure the following variables in `deploy/.env`:
+
+| Variable               | Purpose                                                                                  |
+|------------------------|------------------------------------------------------------------------------------------|
+| `PHOENIX_SECRET_KEY_BASE` | Secret key used by the Phoenix endpoint. Generate with `mix phx.gen.secret`.            |
+| `PHOENIX_HOST`         | Hostname Phoenix advertises (defaults to `phoenix.local`).                               |
+| `PHOENIX_PORT` / `PHOENIX_PORT_EXPOSE` | Container/host port mapping. Defaults expose port 4000.                                |
+| `PHOENIX_POOL_SIZE`    | Postgres connection pool size for Ecto.                                                  |
+| `PHOENIX_DB_SSL`       | Set to `true` to enable SSL when connecting to Postgres.                                 |
+
+The service is built from `build/phoenix/Dockerfile` and the application source in `services/phoenix_app`. Build the image with `docker-compose -f build/docker-compose.yml build phoenix_app` before deploying.
 
 ### :construction: Celery (WIP)
 

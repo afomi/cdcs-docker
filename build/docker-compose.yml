@@ -9,3 +9,12 @@ services:
         - PROJECT_NAME=${PROJECT_NAME}
         - PIP_CONF=${PIP_CONF}
         - PYTHON_VERSION=${PYTHON_VERSION}
+  phoenix_app:
+    image: ${PHOENIX_IMAGE_NAME:-phoenix_app}:${PHOENIX_IMAGE_VERSION:-latest}
+    build:
+      context: ..
+      dockerfile: build/phoenix/Dockerfile
+      args:
+        - ELIXIR_VERSION=${ELIXIR_VERSION:-1.15.7}
+        - OTP_VERSION=${OTP_VERSION:-26.2}
+        - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20240318}
