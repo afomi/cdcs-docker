@@ -29,6 +29,7 @@ Below is the list of environment variables to set and their description.
 | BRANCH         | Branch/Tag of the repository to pull to build the image (e.g. master, 2.10.0)                       |
 | PIP_CONF       | Pip configuration file to use to build the image                                                    |
 | PYTHON_VERSION | Version of the Python image to use as a base image for the CDCS image                               |
+| RAILS_RUBY_VERSION | Ruby version used when building the Rails image (default `3.3.0`)                               |
 
 
 ### 2. Build the image
@@ -68,6 +69,23 @@ vim requirements.txt
 vim settings.py
 docker-compose build --no-cache
 ```
+
+### 4. Build the OpenWebUI image (optional)
+
+The repository also ships an OpenWebUI image that layers audit logging
+middleware on top of the upstream project. To build it:
+
+1. Edit the `OPENWEBUI_*` variables in `build/.env` if you need a
+   different image name or tag.
+2. Run `cd build && docker-compose build openwebui`.
+
+The resulting image copies the `audit_middleware` helpers into the
+container, enabling request/response capture when `AUDIT_SECRET` is set
+at runtime.
+
+Rails remains part of the repository but is now gated behind the
+`rails` compose profile. Skip it while focusing on OpenWebUI, or build it
+on demand with `docker compose --profile rails build rails_app`.
 
 ## Deploy a CDCS
 
@@ -149,6 +167,25 @@ might need to be updated to stay consistent.
 | POSTGRES_HOST          | Postgres hostname (set to `${PROJECT_NAME}_cdcs_postgres`)                                                                                                               |
 | REDIS_HOST             | REDIS hostname (set to `${PROJECT_NAME}_cdcs_redis`)                                                                                                                     |
 
+
+### OpenWebUI deployment overlay
+
+An OpenWebUI + Ollama bundle is available through the
+`openwebui/docker-compose.yml` overlay referenced in `deploy/.env`.
+
+- Adjust the `OPENWEBUI_*`, `OLLAMA_*`, and `AUDIT_*` variables in
+  `deploy/.env`. Leave `AUDIT_SECRET` blank to skip logging or set it to
+  a long random string to enable the middleware and write JSONL files to
+  `deploy/openwebui/audit_logs/`.
+- Build the image if necessary with `docker-compose build openwebui`
+  from the `build/` directory (see [Build the OpenWebUI image
+  (optional)](#4-build-the-openwebui-image-optional)).
+- Start the CPU variant with `cd deploy && docker compose up -d
+  curator_openwebui curator_ollama`.
+- To use an NVIDIA GPU, start the alternate Ollama service with `cd
+  deploy && docker compose --profile gpu-nvidia up -d curator_openwebui
+  curator_ollama_nvidia` and keep `OLLAMA_BASE_URL` pointing to
+  `http://curator_ollama:11434` (the GPU service publishes that alias).
 
 #### Authentication
 
@@ -700,24 +737,3 @@ recommended to create a backup of the databases before starting the migration.
 # Disclaimer
 
 [NIST Disclaimer](https://www.nist.gov/disclaimer)
-
-
-
-
-
-
-
-
-
-
-## To install elixir
-
-from `/build`
-
-run `docker-compose -f build/docker-compose.yml build phoenix_app`
-
-
-
-then
-cd deploy
-docker-compose --env-file .env up -d

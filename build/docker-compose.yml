@@ -9,22 +9,31 @@ services:
         - PROJECT_NAME=${PROJECT_NAME}
         - PIP_CONF=${PIP_CONF}
         - PYTHON_VERSION=${PYTHON_VERSION}
-  # phoenix_app:
-  cdcs_ex:
-    image: ${PHOENIX_IMAGE_NAME:-cdcs_ex}:${PHOENIX_IMAGE_VERSION:-latest}
+
+  # NOTE: KEEP DISABLED FOR NOW (as of 2025-09-21)
+  # cdcs_ex: # phoenix_app:
+  #   image: ${PHOENIX_IMAGE_NAME:-cdcs_ex}:${PHOENIX_IMAGE_VERSION:-latest}
+  #   build:
+  #     context: ..
+  #     dockerfile: build/phoenix/Dockerfile
+  #     args:
+  #       - ELIXIR_VERSION=${ELIXIR_VERSION:-1.18.4}
+  #       - OTP_VERSION=${OTP_VERSION:-28.0.1}
+  #       - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20250630-slim}
+  #       - PHOENIX_APP_PATH=${PHOENIX_APP_PATH:-services/cdcs_ex}
+  #       - PHOENIX_RELEASE=${PHOENIX_RELEASE:-cdcs_ex}
+  # NOTE: KEEP DISABLED FOR NOW (as of 2025-09-21)
+  # rails_app:
+  #   image: ${RAILS_IMAGE_NAME:-rails_app}:${RAILS_IMAGE_VERSION:-latest}
+  #   build:
+  #     context: ..
+  #     dockerfile: build/rails/Dockerfile
+  #     args:
+  #       - RUBY_VERSION=${RAILS_RUBY_VERSION:-3.3.0}
+  #   profiles:
+  #     - rails
+  openwebui:
+    image: ${OPENWEBUI_IMAGE_NAME:-openwebui_audit}:${OPENWEBUI_IMAGE_VERSION:-latest}
     build:
-      context: ..
-      dockerfile: build/phoenix/Dockerfile
-      args:
-        - ELIXIR_VERSION=${ELIXIR_VERSION:-1.18.4}
-        - OTP_VERSION=${OTP_VERSION:-28.0.1}
-        - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20250630-slim}
-        - PHOENIX_APP_PATH=${PHOENIX_APP_PATH:-services/cdcs_ex}
-        - PHOENIX_RELEASE=${PHOENIX_RELEASE:-cdcs_ex}
-  rails_app:
-    image: ${RAILS_IMAGE_NAME:-rails_app}:${RAILS_IMAGE_VERSION:-latest}
-    build:
-      context: ..
-      dockerfile: build/rails/Dockerfile
-      args:
-        - RUBY_VERSION=${RUBY_VERSION:-3.3.0}
+      context: ./openwebui
+      dockerfile: Dockerfile
