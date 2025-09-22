@@ -1,7 +1,7 @@
 services:
   phoenix_app:
     image: ${PHOENIX_IMAGE_NAME:-phoenix_app}:${PHOENIX_IMAGE_VERSION:-latest}
-    container_name: ${COMPOSE_PROJECT_NAME}_phoenix_app
+    container_name: ${COMPOSE_PROJECT_NAME}_${PHOENIX_RELEASE:-cdcs_ex}
     restart: always
     depends_on:
       - curator_postgres

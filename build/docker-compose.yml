@@ -9,15 +9,18 @@ services:
         - PROJECT_NAME=${PROJECT_NAME}
         - PIP_CONF=${PIP_CONF}
         - PYTHON_VERSION=${PYTHON_VERSION}
-  phoenix_app:
-    image: ${PHOENIX_IMAGE_NAME:-phoenix_app}:${PHOENIX_IMAGE_VERSION:-latest}
+  # phoenix_app:
+  cdcs_ex:
+    image: ${PHOENIX_IMAGE_NAME:-cdcs_ex}:${PHOENIX_IMAGE_VERSION:-latest}
     build:
       context: ..
       dockerfile: build/phoenix/Dockerfile
       args:
-        - ELIXIR_VERSION=${ELIXIR_VERSION:-1.15.7}
-        - OTP_VERSION=${OTP_VERSION:-26.2}
-        - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20240318}
+        - ELIXIR_VERSION=${ELIXIR_VERSION:-1.18.4}
+        - OTP_VERSION=${OTP_VERSION:-28.0.1}
+        - DEBIAN_VERSION=${DEBIAN_VERSION:-bookworm-20250630-slim}
+        - PHOENIX_APP_PATH=${PHOENIX_APP_PATH:-services/cdcs_ex}
+        - PHOENIX_RELEASE=${PHOENIX_RELEASE:-cdcs_ex}
   rails_app:
     image: ${RAILS_IMAGE_NAME:-rails_app}:${RAILS_IMAGE_VERSION:-latest}
     build:

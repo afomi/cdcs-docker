@@ -39,7 +39,7 @@ cdcs-docker/build$ docker-compose build --no-cache
 
 ### 3. Build a custom image (optional)
 
-Different images may be needed for different deployment contexts 
+Different images may be needed for different deployment contexts
 (development/CI/production, docker-compose/K8s, ...).
 
 The `custom` build configuration allows adding the following elements
@@ -67,7 +67,7 @@ vim packages.txt
 vim requirements.txt
 vim settings.py
 docker-compose build --no-cache
-``` 
+```
 
 ## Deploy a CDCS
 
@@ -155,7 +155,7 @@ might need to be updated to stay consistent.
 The CDCS supports several authentication methods:
 - Local accounts (default),
 - Single sign-on with [djangosaml2](#djangosaml2),
-- Extended authentication options with [django-allauth](#django-allauth) 
+- Extended authentication options with [django-allauth](#django-allauth)
   - support for local accounts, SAML2, local MFA and more,
   - available since CDCS 2.12.
 
@@ -223,7 +223,7 @@ core-main-app[allauth]==2.12.* # to install a specific version
 ```
 
 Configure SAML2 authentication by providing values for the following environment variables in the `saml2/.env` file.
-See `saml2/.env.allauth.example` for an example of SAML2 configuration with a Keycloak Identity Provider. 
+See `saml2/.env.allauth.example` for an example of SAML2 configuration with a Keycloak Identity Provider.
 Environment variables will be used to register a [django-allauth SAML provider](https://docs.allauth.org/en/latest/socialaccount/providers/saml.html#saml).
 
 | Variable                         | Description                                                                                                                                                            |
@@ -292,7 +292,7 @@ For example:
 CONTACT_PERSON_1=Firstname1,Lastname1,Example Co.,contact1@example.com,technical
 ```
 
-> :page_facing_up: **django-allauth:** Only 1 person per role supported 
+> :page_facing_up: **django-allauth:** Only 1 person per role supported
 > (e.g. one technical and one administrative)
 
 2. Organization (djangosaml2 only)
@@ -386,7 +386,7 @@ recommended for MDCS/NMRR 2.14 and below.
     - set the `SETTINGS` variable to `settings`.
 
 The [`DJANGO_SETTINGS_MODULE`](https://docs.djangoproject.com/en/4.2/topics/settings/#envvar-DJANGO_SETTINGS_MODULE)
-environment variable can be set to select which settings to use. 
+environment variable can be set to select which settings to use.
 By default, the `docker-compose` file sets it using the values of
 `PROJECT_NAME` and `SETTINGS` variables.
 
@@ -395,14 +395,14 @@ please check the [Deployment Checklist](https://docs.djangoproject.com/en/4.2/ho
 
 #### Web Server
 
-The following web servers are available for the CDCS: uWSGI and Gunicorn. 
+The following web servers are available for the CDCS: uWSGI and Gunicorn.
 
 The CDCS image contains a default configurations for each:
 - The default uWSGI configuration writes in a UNIX socket, that Nginx reads from.
-A socket file is mounted in both containers (`cdcs_socket`). 
+A socket file is mounted in both containers (`cdcs_socket`).
 - Gunicorn on the other hand, communicates with Nginx via a port (8000).
 
-You can switch from one web server to the other by setting `WEB_SERVER` in the `.env` 
+You can switch from one web server to the other by setting `WEB_SERVER` in the `.env`
 file to either `uwsgi` or `gunicorn`.
 The Nginx configuration is a little different depending on the web server, so `SERVER_CONF` needs to be updated accordingly:
 use `default` (HTTP deployment with uWSGI) or `https` (HTTPS deployment with uWSGI) for uWSGI, and `gunicorn_http` or `gunicorn_https` for Gunicorn.
@@ -414,7 +414,7 @@ use `default` (HTTP deployment with uWSGI) or `https` (HTTPS deployment with uWS
 docker-compose up -d
 ```
 
-(Optional) For testing purposes, using the HTTPS protocol, you can then run the following script to generate and copy 
+(Optional) For testing purposes, using the HTTPS protocol, you can then run the following script to generate and copy
 self-signed certificates to the container.
 ```shell
 ./docker_set_ssl.sh
@@ -433,8 +433,8 @@ cdcs-docker/deploy$ ./docker_createsuperuser.sh ${username} ${password} ${email}
 ## 4. Initialize database
 
 From CDCS 2.9, to prevent concurrency issues and avoid running database operations multiple times,
-some database initialization commands have been added. These commands need to be run once, 
-after the initial deployment of the application.  
+some database initialization commands have been added. These commands need to be run once,
+after the initial deployment of the application.
 
 - To load the **modules**, run the following command:
 ```shell
@@ -491,7 +491,7 @@ ALLOWED_HOSTS=*
 
 ## Multiple deployments on the same machine
 
-To deploy two CDCS instances on the same machine, use the 
+To deploy two CDCS instances on the same machine, use the
 docker compose environment variable [COMPOSE_PROJECT_NAME](https://docs.docker.com/compose/how-tos/environment-variables/envvars/#compose_project_name).
 
 In this example the two deployment will be called `mdcs1` and `mdcs2`.
@@ -565,7 +565,7 @@ More information can be found on this option in the
 
 ### MongoDB
 
-In preparation for the release of CDCS 3.x, MongoDB becomes an optional component and 
+In preparation for the release of CDCS 3.x, MongoDB becomes an optional component and
 will not be part of the default stack. It will need to be added for any CDCS 2.x deployment.
 
 To add MongoDB to the CDCS stack, append `:mongo/docker-compose.yml` to the `COMPOSE_FILE` value as shown above if it is not already present.
@@ -602,7 +602,7 @@ Build the image with `docker-compose -f build/docker-compose.yml build rails_app
 ### :construction: Celery (WIP)
 
 By default, CDCS images have been running the django web server but also celery worker and celery beat.
-It is now also possible to change this default behavior and run these services 
+It is now also possible to change this default behavior and run these services
 separately by selecting one of the following entrypoint:
 - `docker-entrypoint.sh`: starts the django server, celery worker and celery beat (default)
 - `docker-entrypoint-django.sh`: starts the django server only
@@ -612,7 +612,7 @@ separately by selecting one of the following entrypoint:
 The default behavior will continue to run these 3 services within the same container.
 To deploy the 3 services separately in a docker-compose deployment, you can do the following:
 
-1) Update the file `docker-compose.yml` and set the default entrypoint of the cdcs service to 
+1) Update the file `docker-compose.yml` and set the default entrypoint of the cdcs service to
 only start the django server:
 
 ```yaml
@@ -620,7 +620,7 @@ cdcs:
   entrypoint: /docker-entrypoint-django.sh
 ```
 
-2) Then add celery worker and celery beat services to the CDCS stack, by updating the 
+2) Then add celery worker and celery beat services to the CDCS stack, by updating the
 `COMPOSE_FILE` variable from the `.env` file:
 
 ```
@@ -628,7 +628,7 @@ COMPOSE_FILE=docker-compose.yml:celery/docker-compose.yml
 ```
 
 > :warning: **Concurrency Issue in CDCS < 2.9:** Some CDCS applications make database modifications during their initialization.
-> Starting Django and Celery services in parallel can make these scripts run multiple times, 
+> Starting Django and Celery services in parallel can make these scripts run multiple times,
 > causing inconsistencies in the database. The issue needs to be resolved in the code of the
 > CDCS apps. In the meantime, a startup delay has been implemented for celery services.
 
@@ -694,9 +694,30 @@ docker-compose up -d
 ./docker_migrate.sh
 ```
 
-**NOTE**: the script will do dry runs and ask for confirmation before applying the changes, but it is  
+**NOTE**: the script will do dry runs and ask for confirmation before applying the changes, but it is
 recommended to create a backup of the databases before starting the migration.
 
 # Disclaimer
 
 [NIST Disclaimer](https://www.nist.gov/disclaimer)
+
+
+
+
+
+
+
+
+
+
+## To install elixir
+
+from `/build`
+
+run `docker-compose -f build/docker-compose.yml build phoenix_app`
+
+
+
+then
+cd deploy
+docker-compose --env-file .env up -d
